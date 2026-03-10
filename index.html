@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Horario Propuesto — Clínica Ponce</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #f7f7f5;
+    color: #37352f;
+    font-size: 13px;
+    line-height: 1.5;
+    padding: 32px 24px 64px;
+  }
+
+  .page-header {
+    max-width: 1200px;
+    margin: 0 auto 32px;
+  }
+
+  .page-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #37352f;
+    margin-bottom: 6px;
+    letter-spacing: -0.5px;
+  }
+
+  .page-subtitle {
+    font-size: 14px;
+    color: #787774;
+    font-weight: 400;
+  }
+
+  .divider {
+    max-width: 1200px;
+    margin: 0 auto 28px;
+    height: 1px;
+    background: #e3e2df;
+  }
+
+  /* Legend */
+  .legend {
+    max-width: 1200px;
+    margin: 0 auto 28px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .legend-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #787774;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-right: 4px;
+  }
+
+  .leg-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: #37352f;
+  }
+
+  .leg-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+
+  /* Day blocks */
+  .day-block {
+    max-width: 1200px;
+    margin: 0 auto 28px;
+    background: white;
+    border: 1px solid #e3e2df;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .day-header {
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid #e3e2df;
+  }
+
+  .day-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #37352f;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .day-badge {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 500;
+  }
+
+  .badge-normal { background: #f1f1ef; color: #37352f; }
+  .badge-intensivo { background: #fdecc8; color: #c08b2a; }
+
+  /* Table */
+  .schedule-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .schedule-table th {
+    font-size: 11px;
+    font-weight: 600;
+    color: #787774;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    padding: 7px 10px;
+    text-align: center;
+    background: #fbfbfa;
+    border-bottom: 1px solid #e3e2df;
+    white-space: nowrap;
+  }
+
+  .schedule-table th.col-name {
+    text-align: left;
+    padding-left: 20px;
+    width: 160px;
+    min-width: 160px;
+  }
+
+  .schedule-table th.col-role {
+    text-align: left;
+    width: 130px;
+  }
+
+  .schedule-table th.col-total {
+    width: 55px;
+    background: #f5f5f3;
+  }
+
+  .schedule-table td {
+    padding: 0;
+    border-bottom: 1px solid #f1f1ef;
+    vertical-align: middle;
+  }
+
+  .schedule-table tr:last-child td { border-bottom: none; }
+
+  .td-name {
+    padding: 9px 10px 9px 20px;
+    font-weight: 500;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
+  .td-role {
+    padding: 9px 8px;
+    font-size: 11px;
+    color: #787774;
+    white-space: nowrap;
+  }
+
+  .td-slot {
+    padding: 5px 4px;
+    text-align: center;
+    min-width: 52px;
+    width: 52px;
+  }
+
+  .td-total {
+    padding: 9px 10px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 12px;
+    color: #37352f;
+    background: #fbfbfa;
+    border-left: 1px solid #e3e2df;
+  }
+
+  /* Slot pills */
+  .slot {
+    display: block;
+    height: 26px;
+    border-radius: 4px;
+    width: 100%;
+  }
+
+  .slot-active    { background: #d3e5ef; }       /* azul Notion */
+  .slot-pending   { background: #fdecc8; }       /* naranja claro */
+  .slot-maternal  { background: #d9e8d9; }       /* verde suave */
+  .slot-closed    { background: #eeeeec; }       /* gris cierre */
+  .slot-free      { background: transparent; }
+  .slot-autónoma  { background: #e8dff5; }       /* lila para Mercedes */
+  .slot-director  { background: #fae1d4; }       /* salmón para Helena */
+
+  .slot-x { font-size: 11px; color: #c7c6c3; display: flex; align-items: center; justify-content: center; height: 26px; }
+
+  /* Count row */
+  .count-row td {
+    background: #fbfbfa;
+    padding: 5px 10px;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 500;
+    color: #787774;
+    border-top: 1px solid #e3e2df;
+  }
+  .count-row td.col-name { text-align: left; padding-left: 20px; font-weight: 600; color: #37352f; font-size: 11px; }
+  .count-row td.td-total { background: #f5f5f3; }
+
+  .count-num {
+    display: inline-block;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 22px;
+    text-align: center;
+  }
+  .count-low  { background: #f1f1ef; color: #37352f; }
+  .count-med  { background: #d3e5ef; color: #2d6a8a; }
+  .count-high { background: #c9e4ca; color: #1e5e2a; }
+
+  /* Notes */
+  .notes-row td { padding: 0; }
+  .note-cell {
+    padding: 4px 20px 8px;
+    font-size: 11px;
+    color: #9c9a96;
+    border-bottom: 1px solid #f1f1ef;
+  }
+  .note-cell span { margin-right: 6px; }
+  .note-pending { color: #c08b2a; }
+  .note-ok      { color: #3b8a3e; }
+  .note-info    { color: #2d6a8a; }
+
+  /* Summary section */
+  .summary-block {
+    max-width: 1200px;
+    margin: 0 auto 28px;
+    background: white;
+    border: 1px solid #e3e2df;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .summary-header {
+    padding: 10px 20px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #37352f;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid #e3e2df;
+    background: #fbfbfa;
+  }
+
+  .summary-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .summary-table th {
+    font-size: 11px;
+    font-weight: 600;
+    color: #787774;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    padding: 7px 12px;
+    text-align: center;
+    background: #fbfbfa;
+    border-bottom: 1px solid #e3e2df;
+  }
+
+  .summary-table th:first-child { text-align: left; padding-left: 20px; }
+  .summary-table th:nth-child(2) { text-align: left; }
+
+  .summary-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid #f1f1ef;
+    font-size: 12px;
+    text-align: center;
+    vertical-align: middle;
+  }
+
+  .summary-table td:first-child {
+    text-align: left;
+    padding-left: 20px;
+    font-weight: 500;
+  }
+
+  .summary-table td:nth-child(2) { text-align: left; color: #787774; font-size: 11px; }
+  .summary-table tr:last-child td { border-bottom: none; }
+
+  .h-day { color: #37352f; font-weight: 500; }
+  .h-free { color: #c7c6c3; }
+
+  .status-ok       { background: #dcf1dc; color: #1e5e2a; font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 500; display: inline-block; }
+  .status-pending  { background: #fdecc8; color: #c08b2a; font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 500; display: inline-block; }
+  .status-proposed { background: #d3e5ef; color: #2d6a8a; font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 500; display: inline-block; }
+
+  /* Alerts */
+  .alerts-block {
+    max-width: 1200px;
+    margin: 0 auto 28px;
+  }
+  .alerts-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: #787774;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px;
+  }
+  .alert {
+    display: flex;
+    gap: 10px;
+    padding: 10px 14px;
+    border-radius: 6px;
+    margin-bottom: 6px;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  .alert-warn { background: #fef9ef; border: 1px solid #fdecc8; }
+  .alert-info { background: #f0f7fb; border: 1px solid #d3e5ef; }
+  .alert-ok   { background: #f2faf2; border: 1px solid #c9e4ca; }
+
+  .alert-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+  .alert-text strong { font-weight: 600; }
+
+  /* print */
+  @media print {
+    body { background: white; padding: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="page-title">📅 Horario Propuesto de Transición</div>
+  <div class="page-subtitle">Clínica Ponce de León · Avda. Federico Soto 11, Alicante · Vigencia: desde 1 abril 2026</div>
+</div>
+<div class="divider"></div>
+
+<!-- Legend -->
+<div class="legend">
+  <span class="legend-label">Leyenda</span>
+  <div class="leg-item"><div class="leg-dot" style="background:#d3e5ef"></div>Trabajando</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#e8dff5"></div>Mercedes (autónoma)</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#fae1d4"></div>Helena (directora)</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#fdecc8"></div>Propuesta / Pendiente acuerdo</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#d9e8d9"></div>Reducción maternal</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#eeeeec"></div>Cierre (viernes tarde)</div>
+</div>
+
+<!-- LUNES -->
+<div class="day-block">
+  <div class="day-header">
+    <span class="day-name">Lunes</span>
+    <span class="day-badge badge-normal">Apertura 12 h · Cierre 20 h</span>
+  </div>
+  <table class="schedule-table">
+    <thead>
+      <tr>
+        <th class="col-name">Profesional</th>
+        <th class="col-role">Rol</th>
+        <th>10–11</th><th>11–12</th><th>12–13</th><th>13–14</th>
+        <th>14–15</th><th>15–16</th><th>16–17</th><th>17–18</th>
+        <th>18–19</th><th>19–20</th>
+        <th class="col-total">H/día</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Nacho -->
+      <tr>
+        <td class="td-name">Dr. Nacho Follana</td>
+        <td class="td-role">Ortodoncista</td>
+        <td class="td-slot"></td><td class="td-slot"></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-total">8 h</td>
+      </tr>
+      <!-- Noelia -->
+      <tr>
+        <td class="td-name">Noelia Vela</td>
+        <td class="td-role">Odontóloga</td>
+        <td class="td-slot"></td><td class="td-slot"></td>
+        <td class="td-slot"></td><td class="td-slot"></td>
+        <td class="td-slot"></td><td class="td-slot"></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-total">4 h</td>
+      </tr>
+      <!-- Mercedes -->
+      <tr>
+        <td class="td-name">Dra. Mercedes Bufort</td>
+        <td class="td-role">Ortodoncista (autónoma)</td>
+        <td class="td-slot"></td><td class="td-slot"></td>
+        <td class="td-slot"></td><td class="td-slot"></td>
+        <td class="td-slot"></td><td class="td-slot"></td>
+        <td class="td-slot"></td><td class="td-slot"></td>
+        <td class="td-slot"></td><td class="td-slot"></td>
+        <td class="td-total" style="color:#c7c6c3">–</td>
+      </tr>
+      <!-- Fini -->
+      <tr>
+        <td class="td-name">Fini González</td>
+        <td class="td-role">Higienista</td>
+        <td class="td-slot"></td><td class="td-slot"></td>
+        <td class="td-slot"><span class="slot slot-pending"></span></td>
+        <td class="td-slot"><span class="slot slot-pending"></span></td>
+        <td class="td-slot"><span class="slot slot-pending"></span></td>
+        <td class="td-slot"><span class="slot slot-pending"></span></td>
+        <td class="td-slot"><span class="slot slot-pending"></span></td>
+        <td class="td-slot"><span class="slot slot-pending"></span></td>
+        <td class="td-slot"><span class="slot slot-pending"></span></td>
+        <td class="td-slot"><span class="slot slot-pending"></span></td>
+        <td class="td-total">8 h</td>
+      </tr>
+      <!-- Eva -->
+      <tr>
+        <td class="td-name">Eva Pérez</td>
+        <td class="td-role">Higienista</td>
+        <td class="td-slot"></td><td class="td-slot"></td>
+        <td class="td-slot"></td>
+        <td class="td-slot"><span class="slot slot-pending"></span></td>
+        <td class="td-slot"><span class="slot slot-pending"></span></td>
+        <td class="td-slot"><span class="slot slot-pending"></span></td>
+        <td class="td-slot"><span class="slot slot-pending"></span></td>
+        <td class="td-slot"><span class="slot slot-pending"></span></td>
+        <td class="td-slot"><span class="slot slot-pending"></span></td>
+        <td class="td-slot"><span class="slot slot-pending"></span></td>
+        <td class="td-total">7 h</td>
+      </tr>
+      <!-- Laura -->
+      <tr>
+        <td class="td-name">Laura Sabater</td>
+        <td class="td-role">Aux. Clínica</td>
+        <td class="td-slot"></td><td class="td-slot"></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-total">8 h</td>
+      </tr>
+      <!-- Helena -->
+      <tr>
+        <td class="td-name">Helena López</td>
+        <td class="td-role">Recepción + Directora</td>
+        <td class="td-slot"></td><td class="td-slot"></td>
+        <td class="td-slot"><span class="slot slot-director"></span></td>
+        <td class="td-slot"><span class="slot slot-director"></span></td>
+        <td class="td-slot"><span class="slot slot-director"></span></td>
+        <td class="td-slot"><span class="slot slot-director"></span></td>
+        <td class="td-slot"><span class="slot slot-director"></span></td>
+        <td class="td-slot"><span class="slot slot-director"></span></td>
+        <td class="td-slot"><span class="slot slot-director"></span></td>
+        <td class="td-slot"><span class="slot slot-director"></span></td>
+        <td class="td-total">8 h</td>
+      </tr>
+      <!-- Mar -->
+      <tr>
+        <td class="td-name">Mar Cremades</td>
+        <td class="td-role">Recepción</td>
+        <td class="td-slot"></td><td class="td-slot"></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-total">8 h</td>
+      </tr>
+      <!-- Ana -->
+      <tr>
+        <td class="td-name">Ana Torres</td>
+        <td class="td-role">Técnica de Prótesis</td>
+        <td class="td-slot"></td><td class="td-slot"></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-total">8 h</td>
+      </tr>
+      <!-- Count -->
+      <tr class="count-row">
+        <td class="col-name">Personas en clínica</td>
+        <td></td>
+        <td></td><td></td>
+        <td><span class="count-num count-med">6</span></td>
+        <td><span class="count-num count-high">7</span></td>
+        <td><span class="count-num count-high">7</span></td>
+        <td><span class="count-num count-high">7</span></td>
+        <td><span class="count-num count-high">8</span></td>
+        <td><span class="count-num count-high">8</span></td>
+        <td><span class="count-num count-high">8</span></td>
+        <td><span class="count-num count-high">8</span></td>
+        <td class="td-total"></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- MARTES -->
+<div class="day-block">
+  <div class="day-header">
+    <span class="day-name">Martes</span>
+    <span class="day-badge badge-normal">Apertura 12 h · Cierre 20 h</span>
+  </div>
+  <table class="schedule-table">
+    <thead>
+      <tr>
+        <th class="col-name">Profesional</th>
+        <th class="col-role">Rol</th>
+        <th>10–11</th><th>11–12</th><th>12–13</th><th>13–14</th>
+        <th>14–15</th><th>15–16</th><th>16–17</th><th>17–18</th>
+        <th>18–19</th><th>19–20</th>
+        <th class="col-total">H/día</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="td-name">Dr. Nacho Follana</td><td class="td-role">Ortodoncista</td>
+        <td class="td-slot"></td><td class="td-slot"></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td><td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td><td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td><td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td><td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-total">8 h</td>
+      </tr>
+      <tr>
+        <td class="td-name">Noelia Vela</td><td class="td-role">Odontóloga</td>
+        <td class="td-slot"></td><td class="td-slot"></td>
+        <td class="td-slot"></td><td class="td-slot"></td><td class="td-slot"></td><td class="td-slot"></td>
+        <td class="td-slot"></td><td class="td-slot"></td><td class="td-slot"></td><td class="td-slot"></td>
+        <td class="td-total" style="color:#c7c6c3">–</td>
+      </tr>
+      <tr>
+        <td class="td-name">Dra. Mercedes Bufort</td><td class="td-role">Ortodoncista (autónoma)</td>
+        <td class="td-slot"></td><td class="td-slot"></td>
+        <td class="td-slot"></td><td class="td-slot"></td><td class="td-slot"></td><td class="td-slot"></td>
+        <td class="td-slot"></td><td class="td-slot"></td><td class="td-slot"></td><td class="td-slot"></td>
+        <td class="td-total" style="color:#c7c6c3">–</td>
+      </tr>
+      <tr>
+        <td class="td-name">Fini González</td><td class="td-role">Higienista</td>
+        <td class="td-slot"></td><td class="td-slot"></td>
+        <td class="td-slot"><span class="slot slot-pending"></span></td><td class="td-slot"><span class="slot slot-pending"></span></td>
+        <td class="td-slot"><span class="slot slot-pending"></span></td><td class="td-slot"><span class="slot slot-pending"></span></td>
+        <td class="td-slot"><span class="slot slot-pending"></span></td><td class="td-slot"><span class="slot slot-pending"></span></td>
+        <td class="td-slot"><span class="slot slot-pending"></span></td><td class="td-slot"><span class="slot slot-pending"></span></td>
+        <td class="td-total">8 h</td>
+      </tr>
+      <tr>
+        <td class="td-name">Eva Pérez</td><td class="td-role">Higienista</td>
+        <td class="td-slot"></td><td class="td-slot"></td>
+        <td class="td-slot"></td>
+        <td class="td-slot"><span class="slot slot-pending"></span></td>
+        <td class="td-slot"><span class="slot slot-pending"></span></td><td class="td-slot"><span class="slot slot-pending"></span></td>
+        <td class="td-slot"><span class="slot slot-pending"></span></td><td class="td-slot"><span class="slot slot-pending"></span></td>
+        <td class="td-slot"><span class="slot slot-pending"></span></td><td class="td-slot"><span class="slot slot-pending"></span></td>
+        <td class="td-total">7 h</td>
+      </tr>
+      <tr>
+        <td class="td-name">Laura Sabater</td><td class="td-role">Aux. Clínica</td>
+        <td class="td-slot"></td><td class="td-slot"></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td><td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td><td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td><td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td><td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-total">8 h</td>
+      </tr>
+      <tr>
+        <td class="td-name">Helena López</td><td class="td-role">Recepción + Directora</td>
+        <td class="td-slot"></td><td class="td-slot"></td>
+        <td class="td-slot"><span class="slot slot-director"></span></td><td class="td-slot"><span class="slot slot-director"></span></td>
+        <td class="td-slot"><span class="slot slot-director"></span></td><td class="td-slot"><span class="slot slot-director"></span></td>
+        <td class="td-slot"><span class="slot slot-director"></span></td><td class="td-slot"><span class="slot slot-director"></span></td>
+        <td class="td-slot"><span class="slot slot-director"></span></td><td class="td-slot"><span class="slot slot-director"></span></td>
+        <td class="td-total">8 h</td>
+      </tr>
+      <tr>
+        <td class="td-name">Mar Cremades</td><td class="td-role">Recepción</td>
+        <td class="td-slot"></td><td class="td-slot"></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td><td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td><td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td><td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td><td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-total">8 h</td>
+      </tr>
+      <tr>
+        <td class="td-name">Ana Torres</td><td class="td-role">Técnica de Prótesis</td>
+        <td class="td-slot"></td><td class="td-slot"></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td><td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td><td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td><td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td><td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-total">8 h</td>
+      </tr>
+      <tr class="count-row">
+        <td class="col-name">Personas en clínica</td><td></td>
+        <td></td><td></td>
+        <td><span class="count-num count-med">6</span></td>
+        <td><span class="count-num count-high">7</span></td>
+        <td><span class="count-num count-high">7</span></td>
+        <td><span class="count-num count-high">7</span></td>
+        <td><span class="count-num count-high">7</span></td>
+        <td><span class="count-num count-high">7</span></td>
+        <td><span class="count-num count-high">7</span></td>
+        <td><span class="count-num count-high">7</span></td>
+        <td class="td-total"></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- MIÉRCOLES -->
+<div class="day-block">
+  <div class="day-header">
+    <span class="day-name">Miércoles</span>
+    <span class="day-badge badge-normal">Apertura 12 h · Cierre 20 h</span>
+    <span class="day-badge" style="background:#fef9ef;color:#c08b2a;">⚠️ 2 pendientes de acuerdo</span>
+  </div>
+  <table class="schedule-table">
+    <thead>
+      <tr>
+        <th class="col-name">Profesional</th>
+        <th class="col-role">Rol</th>
+        <th>10–11</th><th>11–12</th><th>12–13</th><th>13–14</th>
+        <th>14–15</th><th>15–16</th><th>16–17</th><th>17–18</th>
+        <th>18–19</th><th>19–20</th>
+        <th class="col-total">H/día</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="td-name">Dr. Nacho Follana</td><td class="td-role">Ortodoncista</td>
+        <td class="td-slot"></td><td class="td-slot"></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td><td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td><td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td><td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td><td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-total">8 h</td>
+      </tr>
+      <tr>
+        <td class="td-name">Noelia Vela</td><td class="td-role">Odontóloga</td>
+        <td class="td-slot"></td><td class="td-slot"></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td><td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td><td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td><td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td><td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-total">7 h ✓</td>
+      </tr>
+      <!-- Mercedes pendiente -->
+      <tr>
+        <td class="td-name">Dra. Mercedes Bufort</td><td class="td-role">Ortodoncista (autónoma)</td>
+        <td class="td-slot"></td><td class="td-slot"></td>
+        <td class="td-slot"><span class="slot slot-autónoma"></span></td><td class="td-slot"><span class="slot slot-autónoma"></span></td>
+        <td class="td-slot"><span class="slot slot-autónoma"></span></td><td class="td-slot"><span class="slot slot-autónoma"></span></td>
+        <td class="td-slot"><span class="slot slot-autónoma"></span></td><td class="td-slot"><span class="slot slot-autónoma"></span></td>
+        <td class="td-slot"></td><td class="td-slot"></td>
+        <td class="td-total">6 h ⚠️</td>
+      </tr>
+      <tr>
+        <td class="td-name">Fini González</td><td class="td-role">Higienista</td>
+        <td class="td-slot"></td><td class="td-slot"></td>
+        <td class="td-slot"><span class="slot slot-pending"></span></td><td class="td-slot"><span class="slot slot-pending"></span></td>
+        <td class="td-slot"><span class="slot slot-pending"></span></td><td class="td-slot"><span class="slot slot-pending"></span></td>
+        <td class="td-slot"><span class="slot slot-pending"></span></td><td class="td-slot"><span class="slot slot-pending"></span></td>
+        <td class="td-slot"><span class="slot slot-pending"></span></td><td class="td-slot"><span class="slot slot-pending"></span></td>
+        <td class="td-total">8 h</td>
+      </tr>
+      <tr>
+        <td class="td-name">Eva Pérez</td><td class="td-role">Higienista</td>
+        <td class="td-slot"></td><td class="td-slot"></td>
+        <td class="td-slot"></td>
+        <td class="td-slot"><span class="slot slot-pending"></span></td>
+        <td class="td-slot"><span class="slot slot-pending"></span></td><td class="td-slot"><span class="slot slot-pending"></span></td>
+        <td class="td-slot"><span class="slot slot-pending"></span></td><td class="td-slot"><span class="slot slot-pending"></span></td>
+        <td class="td-slot"><span class="slot slot-pending"></span></td><td class="td-slot"><span class="slot slot-pending"></span></td>
+        <td class="td-total">7 h ↑</td>
+      </tr>
+      <!-- Laura maternal -->
+      <tr>
+        <td class="td-name">Laura Sabater</td><td class="td-role">Aux. Clínica</td>
+        <td class="td-slot"></td><td class="td-slot"></td>
+        <td class="td-slot"><span class="slot slot-maternal"></span></td><td class="td-slot"><span class="slot slot-maternal"></span></td>
+        <td class="td-slot"><span class="slot slot-maternal"></span></td><td class="td-slot"><span class="slot slot-maternal"></span></td>
+        <td class="td-slot"></td><td class="td-slot"></td>
+        <td class="td-slot"></td><td class="td-slot"></td>
+        <td class="td-total">4 h 🔒</td>
+      </tr>
+      <tr>
+        <td class="td-name">Helena López</td><td class="td-role">Recepción + Directora</td>
+        <td class="td-slot"></td><td class="td-slot"></td>
+        <td class="td-slot"><span class="slot slot-director"></span></td><td class="td-slot"><span class="slot slot-director"></span></td>
+        <td class="td-slot"><span class="slot slot-director"></span></td><td class="td-slot"><span class="slot slot-director"></span></td>
+        <td class="td-slot"><span class="slot slot-director"></span></td><td class="td-slot"><span class="slot slot-director"></span></td>
+        <td class="td-slot"><span class="slot slot-director"></span></td><td class="td-slot"><span class="slot slot-director"></span></td>
+        <td class="td-total">8 h</td>
+      </tr>
+      <tr>
+        <td class="td-name">Mar Cremades</td><td class="td-role">Recepción</td>
+        <td class="td-slot"></td><td class="td-slot"></td>
+        <td class="td-slot"></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td><td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td><td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td><td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-total">7 h</td>
+      </tr>
+      <tr>
+        <td class="td-name">Ana Torres</td><td class="td-role">Técnica de Prótesis</td>
+        <td class="td-slot"></td><td class="td-slot"></td>
+        <td class="td-slot"></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td><td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td><td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td><td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-total">7 h</td>
+      </tr>
+      <tr class="count-row">
+        <td class="col-name">Personas en clínica</td><td></td>
+        <td></td><td></td>
+        <td><span class="count-num count-low">4</span></td>
+        <td><span class="count-num count-high">8</span></td>
+        <td><span class="count-num count-high">8</span></td>
+        <td><span class="count-num count-high">8</span></td>
+        <td><span class="count-num count-med">7</span></td>
+        <td><span class="count-num count-med">7</span></td>
+        <td><span class="count-num count-med">7</span></td>
+        <td><span class="count-num count-med">7</span></td>
+        <td class="td-total"></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- JUEVES -->
+<div class="day-block">
+  <div class="day-header">
+    <span class="day-name">Jueves</span>
+    <span class="day-badge badge-normal">Apertura 12 h · Cierre 20 h</span>
+    <span class="day-badge" style="background:#f0f7fb;color:#2d6a8a;">Día más completo</span>
+  </div>
+  <table class="schedule-table">
+    <thead>
+      <tr>
+        <th class="col-name">Profesional</th>
+        <th class="col-role">Rol</th>
+        <th>10–11</th><th>11–12</th><th>12–13</th><th>13–14</th>
+        <th>14–15</th><th>15–16</th><th>16–17</th><th>17–18</th>
+        <th>18–19</th><th>19–20</th>
+        <th class="col-total">H/día</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="td-name">Dr. Nacho Follana</td><td class="td-role">Ortodoncista</td>
+        <td class="td-slot"></td><td class="td-slot"></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td><td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td><td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td><td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td><td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-total">8 h</td>
+      </tr>
+      <tr>
+        <td class="td-name">Noelia Vela</td><td class="td-role">Odontóloga</td>
+        <td class="td-slot"></td><td class="td-slot"></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td><td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td><td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td><td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td><td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-total">7 h ✓</td>
+      </tr>
+      <tr>
+        <td class="td-name">Dra. Mercedes Bufort</td><td class="td-role">Ortodoncista (autónoma)</td>
+        <td class="td-slot"></td><td class="td-slot"></td>
+        <td class="td-slot"></td><td class="td-slot"></td>
+        <td class="td-slot"><span class="slot slot-autónoma"></span></td><td class="td-slot"><span class="slot slot-autónoma"></span></td>
+        <td class="td-slot"><span class="slot slot-autónoma"></span></td><td class="td-slot"><span class="slot slot-autónoma"></span></td>
+        <td class="td-slot"><span class="slot slot-autónoma"></span></td><td class="td-slot"><span class="slot slot-autónoma"></span></td>
+        <td class="td-total">6 h</td>
+      </tr>
+      <tr>
+        <td class="td-name">Fini González</td><td class="td-role">Higienista</td>
+        <td class="td-slot"></td><td class="td-slot"></td>
+        <td class="td-slot"><span class="slot slot-pending"></span></td><td class="td-slot"><span class="slot slot-pending"></span></td>
+        <td class="td-slot"><span class="slot slot-pending"></span></td><td class="td-slot"><span class="slot slot-pending"></span></td>
+        <td class="td-slot"><span class="slot slot-pending"></span></td><td class="td-slot"><span class="slot slot-pending"></span></td>
+        <td class="td-slot"><span class="slot slot-pending"></span></td><td class="td-slot"><span class="slot slot-pending"></span></td>
+        <td class="td-total">8 h</td>
+      </tr>
+      <tr>
+        <td class="td-name">Eva Pérez</td><td class="td-role">Higienista</td>
+        <td class="td-slot"></td><td class="td-slot"></td>
+        <td class="td-slot"></td>
+        <td class="td-slot"><span class="slot slot-pending"></span></td>
+        <td class="td-slot"><span class="slot slot-pending"></span></td><td class="td-slot"><span class="slot slot-pending"></span></td>
+        <td class="td-slot"><span class="slot slot-pending"></span></td><td class="td-slot"><span class="slot slot-pending"></span></td>
+        <td class="td-slot"><span class="slot slot-pending"></span></td><td class="td-slot"><span class="slot slot-pending"></span></td>
+        <td class="td-total">7 h</td>
+      </tr>
+      <tr>
+        <td class="td-name">Laura Sabater</td><td class="td-role">Aux. Clínica</td>
+        <td class="td-slot"></td><td class="td-slot"></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td><td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td><td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td><td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td><td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-total">8 h</td>
+      </tr>
+      <tr>
+        <td class="td-name">Helena López</td><td class="td-role">Recepción + Directora</td>
+        <td class="td-slot"></td><td class="td-slot"></td>
+        <td class="td-slot"><span class="slot slot-director"></span></td><td class="td-slot"><span class="slot slot-director"></span></td>
+        <td class="td-slot"><span class="slot slot-director"></span></td><td class="td-slot"><span class="slot slot-director"></span></td>
+        <td class="td-slot"><span class="slot slot-director"></span></td><td class="td-slot"><span class="slot slot-director"></span></td>
+        <td class="td-slot"><span class="slot slot-director"></span></td><td class="td-slot"><span class="slot slot-director"></span></td>
+        <td class="td-total">8 h</td>
+      </tr>
+      <tr>
+        <td class="td-name">Mar Cremades</td><td class="td-role">Recepción</td>
+        <td class="td-slot"></td><td class="td-slot"></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td><td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td><td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td><td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td><td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-total">8 h</td>
+      </tr>
+      <tr>
+        <td class="td-name">Ana Torres</td><td class="td-role">Técnica de Prótesis</td>
+        <td class="td-slot"></td><td class="td-slot"></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td><td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td><td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td><td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td><td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-total">8 h</td>
+      </tr>
+      <tr class="count-row">
+        <td class="col-name">Personas en clínica</td><td></td>
+        <td></td><td></td>
+        <td><span class="count-num count-med">6</span></td>
+        <td><span class="count-num count-high">7</span></td>
+        <td><span class="count-num count-high">9</span></td>
+        <td><span class="count-num count-high">9</span></td>
+        <td><span class="count-num count-high">9</span></td>
+        <td><span class="count-num count-high">9</span></td>
+        <td><span class="count-num count-high">9</span></td>
+        <td><span class="count-num count-high">9</span></td>
+        <td class="td-total"></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- VIERNES -->
+<div class="day-block">
+  <div class="day-header">
+    <span class="day-name">Viernes</span>
+    <span class="day-badge badge-intensivo">⚡ Intensivo 10 h–14 h · Cierre 14 h</span>
+  </div>
+  <table class="schedule-table">
+    <thead>
+      <tr>
+        <th class="col-name">Profesional</th>
+        <th class="col-role">Rol</th>
+        <th>10–11</th><th>11–12</th><th>12–13</th><th>13–14</th>
+        <th>14–15</th><th>15–16</th><th>16–17</th><th>17–18</th>
+        <th>18–19</th><th>19–20</th>
+        <th class="col-total">H/día</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="td-name">Dr. Nacho Follana</td><td class="td-role">Ortodoncista</td>
+        <td class="td-slot"></td><td class="td-slot"></td><td class="td-slot"></td><td class="td-slot"></td>
+        <td class="td-slot"><span class="slot-x">✕</span></td>
+        <td class="td-slot"><span class="slot-x">✕</span></td>
+        <td class="td-slot"><span class="slot-x">✕</span></td>
+        <td class="td-slot"><span class="slot-x">✕</span></td>
+        <td class="td-slot"><span class="slot-x">✕</span></td>
+        <td class="td-slot"><span class="slot-x">✕</span></td>
+        <td class="td-total" style="color:#c7c6c3">–</td>
+      </tr>
+      <tr>
+        <td class="td-name">Noelia Vela</td><td class="td-role">Odontóloga</td>
+        <td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot-x">✕</span></td>
+        <td class="td-slot"><span class="slot-x">✕</span></td>
+        <td class="td-slot"><span class="slot-x">✕</span></td>
+        <td class="td-slot"><span class="slot-x">✕</span></td>
+        <td class="td-slot"><span class="slot-x">✕</span></td>
+        <td class="td-slot"><span class="slot-x">✕</span></td>
+        <td class="td-total">4 h</td>
+      </tr>
+      <tr>
+        <td class="td-name">Dra. Mercedes Bufort</td><td class="td-role">Ortodoncista (autónoma)</td>
+        <td class="td-slot"><span class="slot slot-autónoma"></span></td>
+        <td class="td-slot"><span class="slot slot-autónoma"></span></td>
+        <td class="td-slot"><span class="slot slot-autónoma"></span></td>
+        <td class="td-slot"><span class="slot slot-autónoma"></span></td>
+        <td class="td-slot"><span class="slot-x">✕</span></td>
+        <td class="td-slot"><span class="slot-x">✕</span></td>
+        <td class="td-slot"><span class="slot-x">✕</span></td>
+        <td class="td-slot"><span class="slot-x">✕</span></td>
+        <td class="td-slot"><span class="slot-x">✕</span></td>
+        <td class="td-slot"><span class="slot-x">✕</span></td>
+        <td class="td-total">4 h</td>
+      </tr>
+      <tr>
+        <td class="td-name">Fini González</td><td class="td-role">Higienista</td>
+        <td class="td-slot"><span class="slot slot-pending"></span></td>
+        <td class="td-slot"><span class="slot slot-pending"></span></td>
+        <td class="td-slot"><span class="slot slot-pending"></span></td>
+        <td class="td-slot"><span class="slot slot-pending"></span></td>
+        <td class="td-slot"><span class="slot-x">✕</span></td>
+        <td class="td-slot"><span class="slot-x">✕</span></td>
+        <td class="td-slot"><span class="slot-x">✕</span></td>
+        <td class="td-slot"><span class="slot-x">✕</span></td>
+        <td class="td-slot"><span class="slot-x">✕</span></td>
+        <td class="td-slot"><span class="slot-x">✕</span></td>
+        <td class="td-total">4 h</td>
+      </tr>
+      <tr>
+        <td class="td-name">Eva Pérez</td><td class="td-role">Higienista</td>
+        <td class="td-slot"><span class="slot slot-pending"></span></td>
+        <td class="td-slot"><span class="slot slot-pending"></span></td>
+        <td class="td-slot"><span class="slot slot-pending"></span></td>
+        <td class="td-slot"><span class="slot slot-pending"></span></td>
+        <td class="td-slot"><span class="slot-x">✕</span></td>
+        <td class="td-slot"><span class="slot-x">✕</span></td>
+        <td class="td-slot"><span class="slot-x">✕</span></td>
+        <td class="td-slot"><span class="slot-x">✕</span></td>
+        <td class="td-slot"><span class="slot-x">✕</span></td>
+        <td class="td-slot"><span class="slot-x">✕</span></td>
+        <td class="td-total">4 h</td>
+      </tr>
+      <tr>
+        <td class="td-name">Laura Sabater</td><td class="td-role">Aux. Clínica</td>
+        <td class="td-slot"><span class="slot slot-maternal"></span></td>
+        <td class="td-slot"><span class="slot slot-maternal"></span></td>
+        <td class="td-slot"><span class="slot slot-maternal"></span></td>
+        <td class="td-slot"><span class="slot slot-maternal"></span></td>
+        <td class="td-slot"><span class="slot-x">✕</span></td>
+        <td class="td-slot"><span class="slot-x">✕</span></td>
+        <td class="td-slot"><span class="slot-x">✕</span></td>
+        <td class="td-slot"><span class="slot-x">✕</span></td>
+        <td class="td-slot"><span class="slot-x">✕</span></td>
+        <td class="td-slot"><span class="slot-x">✕</span></td>
+        <td class="td-total">4 h 🔒</td>
+      </tr>
+      <tr>
+        <td class="td-name">Helena López</td><td class="td-role">Recepción + Directora</td>
+        <td class="td-slot"><span class="slot slot-director"></span></td>
+        <td class="td-slot"><span class="slot slot-director"></span></td>
+        <td class="td-slot"><span class="slot slot-director"></span></td>
+        <td class="td-slot"><span class="slot slot-director"></span></td>
+        <td class="td-slot"><span class="slot-x">✕</span></td>
+        <td class="td-slot"><span class="slot-x">✕</span></td>
+        <td class="td-slot"><span class="slot-x">✕</span></td>
+        <td class="td-slot"><span class="slot-x">✕</span></td>
+        <td class="td-slot"><span class="slot-x">✕</span></td>
+        <td class="td-slot"><span class="slot-x">✕</span></td>
+        <td class="td-total">4 h</td>
+      </tr>
+      <tr>
+        <td class="td-name">Mar Cremades</td><td class="td-role">Recepción</td>
+        <td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot-x">✕</span></td>
+        <td class="td-slot"><span class="slot-x">✕</span></td>
+        <td class="td-slot"><span class="slot-x">✕</span></td>
+        <td class="td-slot"><span class="slot-x">✕</span></td>
+        <td class="td-slot"><span class="slot-x">✕</span></td>
+        <td class="td-slot"><span class="slot-x">✕</span></td>
+        <td class="td-total">4 h</td>
+      </tr>
+      <tr>
+        <td class="td-name">Ana Torres</td><td class="td-role">Técnica de Prótesis</td>
+        <td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot slot-active"></span></td>
+        <td class="td-slot"><span class="slot-x">✕</span></td>
+        <td class="td-slot"><span class="slot-x">✕</span></td>
+        <td class="td-slot"><span class="slot-x">✕</span></td>
+        <td class="td-slot"><span class="slot-x">✕</span></td>
+        <td class="td-slot"><span class="slot-x">✕</span></td>
+        <td class="td-slot"><span class="slot-x">✕</span></td>
+        <td class="td-total">4 h</td>
+      </tr>
+      <tr class="count-row">
+        <td class="col-name">Personas en clínica</td><td></td>
+        <td><span class="count-num count-high">8</span></td>
+        <td><span class="count-num count-high">8</span></td>
+        <td><span class="count-num count-high">8</span></td>
+        <td><span class="count-num count-high">8</span></td>
+        <td></td><td></td><td></td><td></td><td></td><td></td>
+        <td class="td-total"></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- RESUMEN SEMANAL -->
+<div class="summary-block">
+  <div class="summary-header">Resumen semanal de horas</div>
+  <table class="summary-table">
+    <thead>
+      <tr>
+        <th>Profesional</th>
+        <th>Rol</th>
+        <th>Lun</th><th>Mar</th><th>Mié</th><th>Jue</th><th>Vie</th>
+        <th>Total</th><th>Contrato</th><th>Estado</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Dr. Nacho Follana</td><td>Ortodoncista</td>
+        <td class="h-day">8h</td><td class="h-day">8h</td><td class="h-day">8h</td><td class="h-day">8h</td><td class="h-free">–</td>
+        <td><strong>32h</strong></td><td>32h</td>
+        <td><span class="status-ok">✓ OK</span></td>
+      </tr>
+      <tr>
+        <td>Noelia Vela</td><td>Odontóloga</td>
+        <td class="h-day">4h</td><td class="h-free">–</td><td class="h-day">7h</td><td class="h-day">7h</td><td class="h-day">4h</td>
+        <td><strong>22h</strong></td><td>22h</td>
+        <td><span class="status-ok">✓ OK</span></td>
+      </tr>
+      <tr>
+        <td>Dra. Mercedes Bufort</td><td>Ortodoncista (autónoma)</td>
+        <td class="h-free">–</td><td class="h-free">–</td><td class="h-day">6h ⚠️</td><td class="h-day">6h</td><td class="h-day">4h</td>
+        <td><strong>~16h</strong></td><td>~15,5h</td>
+        <td><span class="status-pending">⚠️ Negociación</span></td>
+      </tr>
+      <tr>
+        <td>Fini González</td><td>Higienista</td>
+        <td class="h-day">8h</td><td class="h-day">8h</td><td class="h-day">8h</td><td class="h-day">8h</td><td class="h-day">4h</td>
+        <td><strong>36h</strong></td><td>34h → 36h</td>
+        <td><span class="status-pending">⏱ Pdte. firma</span></td>
+      </tr>
+      <tr>
+        <td>Eva Pérez</td><td>Higienista</td>
+        <td class="h-day">7h</td><td class="h-day">7h</td><td class="h-day">7h</td><td class="h-day">7h</td><td class="h-day">4h</td>
+        <td><strong>32h</strong></td><td>32h</td>
+        <td><span class="status-proposed">→ Propuesta</span></td>
+      </tr>
+      <tr>
+        <td>Laura Sabater</td><td>Aux. Clínica (maternal)</td>
+        <td class="h-day">8h</td><td class="h-day">8h</td><td class="h-day">4h 🔒</td><td class="h-day">8h</td><td class="h-day">4h 🔒</td>
+        <td><strong>32h</strong></td><td>32h</td>
+        <td><span class="status-ok">✓ OK</span></td>
+      </tr>
+      <tr>
+        <td>Helena López</td><td>Recepción + Directora</td>
+        <td class="h-day">8h</td><td class="h-day">8h</td><td class="h-day">8h</td><td class="h-day">8h</td><td class="h-day">4h</td>
+        <td><strong>36h</strong></td><td>36h</td>
+        <td><span class="status-proposed">→ Propuesta</span></td>
+      </tr>
+      <tr>
+        <td>Mar Cremades</td><td>Recepción</td>
+        <td class="h-day">8h</td><td class="h-day">8h</td><td class="h-day">7h</td><td class="h-day">8h</td><td class="h-day">4h</td>
+        <td><strong>35h</strong></td><td>35h</td>
+        <td><span class="status-ok">✓ OK</span></td>
+      </tr>
+      <tr>
+        <td>Ana Torres</td><td>Técnica de Prótesis</td>
+        <td class="h-day">8h</td><td class="h-day">8h</td><td class="h-day">7h</td><td class="h-day">8h</td><td class="h-day">4h</td>
+        <td><strong>35h</strong></td><td>35h</td>
+        <td><span class="status-ok">✓ OK</span></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ALERTAS -->
+<div class="alerts-block">
+  <div class="alerts-title">Puntos pendientes y alertas</div>
+
+  <div class="alert alert-warn">
+    <span class="alert-icon">⚠️</span>
+    <div class="alert-text"><strong>Mercedes Bufort — Miércoles sin confirmar.</strong> El horario contempla 6h en miércoles, pero está en negociación. Alternativa probable: Jueves ampliado (ya 6h) + Viernes (4h). Total semanal cierra en ~16h de cualquier forma. Hay que hablar con Mercedes antes del 1 de abril.</div>
+  </div>
+
+  <div class="alert alert-warn">
+    <span class="alert-icon">⚠️</span>
+    <div class="alert-text"><strong>Laura Sabater — Miércoles maternal.</strong> El horario propone desplazar el bloque maternal de 10–14h a 12–16h para alinear con la apertura. Requiere consentimiento expreso de Laura. Sin ese acuerdo, el miércoles Laura vendría 10–14h, que ya no cuadra con la apertura 12h.</div>
+  </div>
+
+  <div class="alert alert-warn">
+    <span class="alert-icon">⏱</span>
+    <div class="alert-text"><strong>Fini González — Formalizar entrada 12:00h y ampliar contrato de 34h a 36h.</strong> En la práctica ya entra a las 12h (antes era 12:30h de facto). Hay que actualizar el contrato. Sin cambio económico relevante, pero requiere trámite.</div>
+  </div>
+
+  <div class="alert alert-info">
+    <span class="alert-icon">→</span>
+    <div class="alert-text"><strong>Eva Pérez — Cambio de rol: recepción a higienista.</strong> El contrato refleja 32h pero la práctica real era 28h (miércoles libre por acuerdo privado). La propuesta recupera miércoles y lleva a 32h reales. Requiere Art. 41 + cambio de categoría.</div>
+  </div>
+
+  <div class="alert alert-info">
+    <span class="alert-icon">★</span>
+    <div class="alert-text"><strong>Helena López — Nuevo rol Directora de Clínica.</strong> Horario continuo 12–20h (sin turno partido). Mismo total 36h. Propuesta transitoria: combina dirección + recepción hasta que Eva esté operativa como higienista. Aumento salarial pendiente de definir.</div>
+  </div>
+
+  <div class="alert alert-ok">
+    <span class="alert-icon">🔒</span>
+    <div class="alert-text"><strong>Laura Sabater — Reducción maternal intocable hasta julio 2029.</strong> Viernes tarde (16–20h) protegido por Art. 37.5 ET. No hay margen legal para modificar esos bloques sin su consentimiento.</div>
+  </div>
+
+  <div class="alert alert-info">
+    <span class="alert-icon">📌</span>
+    <div class="alert-text"><strong>Lunes — Eva: entrada a las 13h.</strong> En lunes, Eva entra a las 13h (no a las 12h como el resto). La celda 12–13h aparece vacía. El resumen semanal la contabiliza correctamente en 7h/día. Hay que confirmar si este slot es intencional o si se quiere que entre también a las 12h (suma +1h → 32h reales por otra vía).</div>
+  </div>
+</div>
+
+<div style="max-width:1200px;margin:0 auto;padding-bottom:16px;font-size:11px;color:#b8b5b0;text-align:center;">
+  Clínica Ponce de León · Horario de Transición · Generado marzo 2026
+</div>
+
+</body>
+</html>
